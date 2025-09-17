@@ -2,8 +2,8 @@ import spacy
 from nltk.stem import PorterStemmer  # For stemming
 import nltk
 
-# Load spaCy model
-nlp = spacy.load("en_core_web_sm")
+# Pretrained model
+nlp = spacy.load("en_core_web_sm") # english, standared general, web data,small
 
 # Initialize NLTK stemmer
 stemmer = PorterStemmer()
