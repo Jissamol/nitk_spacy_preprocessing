@@ -1,0 +1,51 @@
+# ------------------------------------------
+# Named Entity Recognition (NER) using spaCy
+# Example with unstructured text (job postings, articles)
+# ------------------------------------------
+
+import spacy
+import pandas as pd
+
+# Load spaCy's pre-trained English model
+nlp = spacy.load("en_core_web_sm")
+
+# Example dataset: list of unstructured job postings / articles
+documents = [
+    "Google is hiring a Software Engineer in Bangalore. Contact John Doe for details.",
+    "Microsoft appointed Satya Nadella as CEO in 2014.",
+    "Dr. Jane Smith published a paper on AI at Stanford University.",
+    "Amazon is collaborating with MIT professors for research on cloud computing.",
+]
+
+# Apply NER
+results = []
+
+for doc in documents:
+    spacy_doc = nlp(doc)
+    for ent in spacy_doc.ents:
+        results.append([doc, ent.text, ent.label_])
+
+# Convert to DataFrame
+ner_df = pd.DataFrame(results, columns=["Sentence", "Entity", "Label"])
+print("==== Named Entities Identified ====")
+print(ner_df)
+
+# ------------------------------------------
+# Structured Information Extraction
+# Persons and their Organizations
+# ------------------------------------------
+structured_info = []
+
+for doc in documents:
+    spacy_doc = nlp(doc)
+    persons = [ent.text for ent in spacy_doc.ents if ent.label_ == "PERSON"]
+    orgs = [ent.text for ent in spacy_doc.ents if ent.label_ == "ORG"]
+    
+    for p in persons:
+        for o in orgs:
+            structured_info.append([p, o])
+
+# Convert to DataFrame
+structured_df = pd.DataFrame(structured_info, columns=["Person", "Organization"])
+print("\n==== Structured Person-Organization Table ====")
+print(structured_df)

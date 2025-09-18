@@ -1,0 +1,81 @@
+# ------------------------------------------
+# Topic Modeling using LDA (Latent Dirichlet Allocation)
+# Dataset: Example corpus of articles/posts
+# ------------------------------------------
+
+import nltk
+import gensim
+import gensim.corpora as corpora
+from nltk.corpus import stopwords
+from gensim.utils import simple_preprocess
+from gensim.models import LdaModel
+import pyLDAvis
+import pyLDAvis.gensim_models
+
+nltk.download('stopwords')
+
+# Example corpus (replace with your dataset)
+corpus = [
+    "The economy is growing fast in India with new startups emerging daily.",
+    "Scientists discovered a new planet in the solar system using advanced telescopes.",
+    "Political leaders are discussing new climate change policies at the United Nations.",
+    "Machine learning and artificial intelligence are transforming industries worldwide.",
+    "Football tournaments and cricket matches attract millions of fans across the globe."
+]
+
+# ------------------------------------------
+# Step 1: Preprocessing
+# ------------------------------------------
+
+# Tokenization & lowercasing
+def preprocess(texts):
+    stop_words = stopwords.words('english')
+    processed = []
+    for doc in texts:
+        tokens = simple_preprocess(str(doc), deacc=True)  # tokenize & remove punctuation
+        tokens = [word for word in tokens if word not in stop_words]  # remove stopwords
+        processed.append(tokens)
+    return processed
+
+processed_corpus = preprocess(corpus)
+print("==== Preprocessed Corpus ====")
+print(processed_corpus)
+
+# ------------------------------------------
+# Step 2: Create Dictionary & Corpus for LDA
+# ------------------------------------------
+# Create dictionary
+id2word = corpora.Dictionary(processed_corpus)
+
+# Create BoW corpus
+bow_corpus = [id2word.doc2bow(text) for text in processed_corpus]
+
+# ------------------------------------------
+# Step 3: Train LDA Model
+# ------------------------------------------
+lda_model = LdaModel(
+    corpus=bow_corpus,
+    id2word=id2word,
+    num_topics=3,        # choose number of topics
+    random_state=42,
+    update_every=1,
+    chunksize=10,
+    passes=10,
+    alpha='auto',
+    per_word_topics=True
+)
+
+print("\n==== Topics Identified ====")
+topics = lda_model.print_topics(num_words=5)
+for topic in topics:
+    print(topic)
+
+# ------------------------------------------
+# Step 4: Visualization
+# ------------------------------------------
+# Install pyLDAvis before running: pip install pyLDAvis
+pyLDAvis.enable_notebook()  # For Jupyter Notebook
+vis = pyLDAvis.gensim_models.prepare(lda_model, bow_corpus, id2word)
+
+# To view visualization in Jupyter Notebook
+vis
